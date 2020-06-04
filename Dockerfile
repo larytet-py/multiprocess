@@ -1,4 +1,4 @@
-FROM ubuntu:19.10 
+FROM ubuntu:20.04 
 
 # Environment variables
 ENV APP_DIR /app
@@ -7,6 +7,9 @@ ENV LANG=en_US.UTF-8
 
 # Install dependencies and cleanup
 RUN apt-get update
+RUN apt-get -y install software-properties-common
+RUN add-apt-repository -y ppa:deadsnakes/ppa
+RUN apt install python3.9
 RUN apt-get -y install python3-pip git 
 RUN pip3 install pylint psutil pytest
 
@@ -19,5 +22,5 @@ COPY *.py ${APP_DIR}/
 RUN pylint --disable=W,C  main.py
 
 
-CMD ["python3", "main.py"]
+CMD ["python3.9", "main.py"]
 
