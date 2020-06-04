@@ -9,7 +9,7 @@ ENV LANG=en_US.UTF-8
 RUN apt-get update
 RUN apt-get -y install software-properties-common
 RUN add-apt-repository -y ppa:deadsnakes/ppa
-RUN apt install -y python3.9
+RUN apt install -y python3.8
 RUN apt-get -y install python3-pip git 
 RUN pip3 install pylint psutil pytest
 
@@ -22,5 +22,5 @@ COPY *.py ${APP_DIR}/
 RUN pylint --disable=W,C  main.py
 
 
-CMD ["python3.9", "main.py"]
+CMD ["python3.8", "main.py"]
 
