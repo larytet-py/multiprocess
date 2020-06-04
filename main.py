@@ -30,7 +30,7 @@ def load_cpu(deadline):
 def join_process(job, timeout):
     time_start = time.time()
     while time.time()-time_start < timeout and job.is_alive():
-        time.sleep(0.1 * timeout)
+        time.sleep(0.1   * timeout)
         continue
 
 job_counter = 0
