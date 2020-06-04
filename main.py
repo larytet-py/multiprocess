@@ -17,6 +17,7 @@ import time
 import random
 import threading
 import multiprocessing
+import sys
 
 def load_cpu(deadline):
     '''
@@ -27,6 +28,12 @@ def load_cpu(deadline):
     while time.time() - start < 0.2*deadline:
         math.pow(random.randint(0, 1), random.randint(0, 1))
 
+def join_process(job, timeout):
+    time_start = time.time()
+    while time.time()-time_start < timeout and job.is_alive():
+        time.sleep(0.1 * timeout)
+        continue
+
 job_counter = 0
 def spawn_job(deadline):
     '''
@@ -36,8 +43,7 @@ def spawn_job(deadline):
     time_start = time.time()
     job = multiprocessing.Process(target=load_cpu, args=(deadline, ))
     job.start()
-    # timeout=None in the call to join() solves the problem
-    job.join(deadline)
+    join_process(job, deadline)
     elapsed = time.time()-time_start
     if elapsed < deadline and job.is_alive():
         logger.error(f"#{job_counter}: job.join() returned while process {job.pid} is still alive elapsed={elapsed} deadline={deadline}")
@@ -49,9 +55,13 @@ def spawn_job(deadline):
         except Exception as e:
             logger.error(f"job.close() failed {e}")
     else:
-        logger.debug(f"job.join() returned elapsed={elapsed}")
+        logger.debug(f"job.join() returned elapsed={elapsed} deadline={deadline}")
     # A not atomic counter, I do not care about precision
-    job_counter += 1        
+    job_counter += 1
+    mask = 0xFF
+    if (job_counter-1) & mask == mask:
+        logger.info(f"#{job_counter}")
+    
 
 def spawn_thread(deadline):
     '''
@@ -87,6 +97,7 @@ def run_it_all():
     3. start a new process
     4. Goto step 2
     '''
+    global job_counter
     deadline=0.2
     cores = multiprocessing.cpu_count()
     threads = spawn_threads(deadline=deadline, amount=2*cores)
@@ -96,7 +107,7 @@ def run_it_all():
 
         thread = spawn_thread(deadline=deadline)
         threads.append(thread)
-    
+
 if __name__ == '__main__':
     logger_format = '%(name)s:%(levelname)s:%(filename)s:%(lineno)d:%(message)s'
     logging.basicConfig(format=logger_format)
