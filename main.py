@@ -2,12 +2,11 @@
 
 """Main
 Implements a simple multiprocessing demo
+See  https://bugs.python.org/issue40860
 
-https://bugs.python.org/issue40860?@ok_message=msg%20370695%20created%0Aissue%2040860%20created&@template=item
 Try 
 
-    docker build --tag multiprocess .
-    docker run -e LOGLEVEL=DEBUG multiprocess
+    docker build --tag multiprocess . && docker run -e LOGLEVEL=DEBUG multiprocess
 """
 
 import logging
@@ -31,7 +30,7 @@ def load_cpu(deadline):
 def join_process(job, timeout):
     time_start = time.time()
     while time.time()-time_start < timeout and job.is_alive():
-        time.sleep(0.1 * timeout)
+        time.sleep(0.1   * timeout)
         continue
 
 job_counter = 0
