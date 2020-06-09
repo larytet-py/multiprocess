@@ -18,7 +18,7 @@ import threading
 import multiprocessing
 import sys
 
-def load_cpu(deadline):
+def load_cpu(deadline, completionEvent):
     '''
     Consume 100% CPU for some time
     '''
@@ -26,12 +26,7 @@ def load_cpu(deadline):
     # I want to complete well ahead of the deadline
     while time.time() - start < 0.2*deadline:
         math.pow(random.randint(0, 1), random.randint(0, 1))
-
-def join_process(job, timeout):
-    time_start = time.time()
-    while time.time()-time_start < timeout and job.is_alive():
-        time.sleep(0.1   * timeout)
-        continue
+    completionEvent.set()
 
 job_counter = 0
 def spawn_job(deadline):
@@ -40,9 +35,10 @@ def spawn_job(deadline):
     '''    
     global job_counter
     time_start = time.time()
-    job = multiprocessing.Process(target=load_cpu, args=(deadline, ))
+    completionEvent = multiprocessing.Event()
+    job = multiprocessing.Process(target=load_cpu, args=(deadline, completionEvent, ))
     job.start()
-    join_process(job, deadline)
+    completionEvent.wait(deadline)
     elapsed = time.time()-time_start
     if elapsed < deadline and job.is_alive():
         logger.error(f"#{job_counter}: job.join() returned while process {job.pid} is still alive elapsed={elapsed} deadline={deadline}")
@@ -98,6 +94,8 @@ def run_it_all():
     '''
     global job_counter
     deadline=0.2
+    # A quick trial 
+    load_cpu(deadline, multiprocessing.Event())
     cores = multiprocessing.cpu_count()
     threads = spawn_threads(deadline=deadline, amount=2*cores)
     while True:
