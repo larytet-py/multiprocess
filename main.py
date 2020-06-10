@@ -16,7 +16,6 @@ import time
 import random
 import threading
 import multiprocessing
-import sys
 
 def load_cpu(deadline):
     '''
@@ -99,9 +98,9 @@ def run_it_all():
     4. Goto step 2
     '''
     global job_counter
-    deadline=0.2
+    deadline=0.05
     cores = multiprocessing.cpu_count()
-    threads = spawn_threads(deadline=deadline, amount=2*cores)
+    threads = spawn_threads(deadline=deadline, amount=4*cores)
     while True:
         thread = join_random_thread(threads, deadline)
         threads.remove(thread)
