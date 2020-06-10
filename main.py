@@ -34,14 +34,16 @@ def join_process(job, timeout):
         continue
 
 job_counter = 0
+lock = threading.Lock()
 def spawn_job(deadline):
     '''
     Creat a new Process, call join(), process errors
     '''    
     global job_counter
     time_start = time.time()
-    job = multiprocessing.Process(target=load_cpu, args=(deadline, ))
-    job.start()
+    with lock:
+        job = multiprocessing.Process(target=load_cpu, args=(deadline, ))
+        job.start()
     join_process(job, deadline)
     elapsed = time.time()-time_start
     if elapsed < deadline and job.is_alive():
