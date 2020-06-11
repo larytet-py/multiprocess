@@ -33,7 +33,7 @@ def join_process(job, timeout):
         continue
 
 job_counter = 0
-job_cycle_counter = 0
+cycle_counter = 0
 cycle_start = time.time()
 lock = threading.Lock()
 
