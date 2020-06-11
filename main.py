@@ -70,7 +70,7 @@ def spawn_job(deadline):
         rate = cycle_counter/(time.time() - cycle_start)
         cycle_counter = 0
         cycle_start = time.time()
-        logger.info(f"#{job_counter} {rate}ops/s")
+        logger.info(f"#{job_counter} {round(rate)}ops/s")
         
     
 
