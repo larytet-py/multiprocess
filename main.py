@@ -33,7 +33,10 @@ def join_process(job, timeout):
         continue
 
 job_counter = 0
+job_cycle_counter = 0
+cycle_start = time.time()
 lock = threading.Lock()
+
 def spawn_job(deadline):
     '''
     Creat a new Process, call join(), process errors
@@ -43,24 +46,30 @@ def spawn_job(deadline):
     with lock:
         job = multiprocessing.Process(target=load_cpu, args=(deadline, ))
         job.start()
-    join_process(job, deadline)
+    job.join(deadline)
     elapsed = time.time()-time_start
-    if elapsed < deadline and job.is_alive():
-        logger.error(f"#{job_counter}: job.join() returned while process {job.pid} is still alive elapsed={elapsed} deadline={deadline}")
+    if elapsed < deadline:
+        logger.debug(f"#{job_counter}: job.join() returned while process {job.pid} is still alive elapsed={elapsed} deadline={deadline}")
+    else:
+        logger.debug(f"job.join() returned elapsed={elapsed} deadline={deadline}")
+    if job.is_alive():        
         # call to job.close() fails despite the call to terminate() 
         # Call to job.kill() instead is not an improvement
-        job.terminate()
+        job.kill()
         try:
             job.close()
         except Exception as e:
-            logger.error(f"job.close() failed {e}")
-    else:
-        logger.debug(f"job.join() returned elapsed={elapsed} deadline={deadline}")
+            logger.debug(f"job.close() failed {e}")
     # A not atomic counter, I do not care about precision
     job_counter += 1
-    mask = 0xFF
+    job_cycle_counter += 1
+    mask = 0x1FF
     if (job_counter-1) & mask == mask:
-        logger.info(f"#{job_counter}")
+        rate = job_cycle_counter/(time.time() - cycle_start)
+        job_cycle_counter = 0
+        cycle_start = time.time()
+        logger.info(f"#{job_counter} {rate}ops/s")
+        
     
 
 def spawn_thread(deadline):
