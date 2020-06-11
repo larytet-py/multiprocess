@@ -42,6 +42,8 @@ def spawn_job(deadline):
     Creat a new Process, call join(), process errors
     '''    
     global job_counter
+    global cycle_counter
+    global cycle_start
     time_start = time.time()
     with lock:
         job = multiprocessing.Process(target=load_cpu, args=(deadline, ))
