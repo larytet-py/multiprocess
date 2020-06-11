@@ -65,8 +65,8 @@ def spawn_job(deadline):
     job_cycle_counter += 1
     mask = 0x1FF
     if (job_counter-1) & mask == mask:
-        rate = job_cycle_counter/(time.time() - cycle_start)
-        job_cycle_counter = 0
+        rate = cycle_counter/(time.time() - cycle_start)
+        cycle_counter = 0
         cycle_start = time.time()
         logger.info(f"#{job_counter} {rate}ops/s")
         
