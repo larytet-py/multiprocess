@@ -61,7 +61,7 @@ def spawn_job(deadline):
         try:
             job.close()
         except Exception as e:
-            logger.error(f"job.close() failed {e}")
+            logger.debug(f"job.close() failed {e}")
     # A not atomic counter, I do not care about precision
     job_counter += 1
     cycle_counter += 1
