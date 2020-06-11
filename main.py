@@ -53,7 +53,7 @@ def spawn_job(deadline):
     if elapsed < deadline:
         logger.debug(f"#{job_counter}: job.join() returned while process {job.pid} is still alive elapsed={elapsed} deadline={deadline}")
     else:
-        logger.debug(f"job.join() returned elapsed={elapsed} deadline={deadline}")
+        logger.error(f"job.join() returned elapsed={elapsed} deadline={deadline}")
     if job.is_alive():        
         # call to job.close() fails despite the call to terminate() 
         # Call to job.kill() instead is not an improvement
@@ -65,7 +65,7 @@ def spawn_job(deadline):
     # A not atomic counter, I do not care about precision
     job_counter += 1
     cycle_counter += 1
-    mask = 0x1FF
+    mask = 0xFFF
     if (job_counter-1) & mask == mask:
         rate = cycle_counter/(time.time() - cycle_start)
         cycle_counter = 0
